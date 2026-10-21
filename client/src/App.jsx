@@ -12,11 +12,13 @@ import MemberPages from './member/MemberPages.jsx'
 import AdminPages from './admin/AdminPages.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import RequireAuth from './routes/RequireAuth.jsx'
+import DumbbellScrollbar from './components/DumbbellScrollbar.jsx'
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <DumbbellScrollbar />
         <Routes>
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
