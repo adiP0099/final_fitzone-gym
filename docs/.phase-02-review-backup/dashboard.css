@@ -1,0 +1,22 @@
+.dash-columns {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+}
+
+.admin-add-form select {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 13px 14px;
+  border: 1px solid #e1ded7;
+  border-radius: 2px;
+  background: #fbfaf7;
+  color: #25251f;
+  font: inherit;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .dash-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

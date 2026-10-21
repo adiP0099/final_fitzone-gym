@@ -1,0 +1,405 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.keys().hasAny(['role'])
+        && request.auth.token.role == 'admin';
+    }
+
+    function isShortString(value, maxLength) {
+      return value is string && value.size() <= maxLength;
+    }
+
+    function optionalShortString(data, field, maxLength) {
+      return !(field in data) || data[field] == null || isShortString(data[field], maxLength);
+    }
+
+    function validUserCreate(uid) {
+      let data = request.resource.data;
+      return data.keys().hasAll([
+          'uid', 'displayName', 'email', 'role', 'accountStatus', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'uid', 'displayName', 'email', 'phone', 'location', 'role',
+          'accountStatus', 'createdAt', 'updatedAt'
+        ])
+        && data.uid == uid
+        && isShortString(data.displayName, 100)
+        && request.auth.token.email is string
+        && data.email == request.auth.token.email
+        && data.role == 'member'
+        && data.accountStatus == 'pending'
+        && optionalShortString(data, 'phone', 40)
+        && optionalShortString(data, 'location', 200)
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function validUserProfileUpdate(uid) {
+      let data = request.resource.data;
+      let changed = data.diff(resource.data).affectedKeys();
+      return data.uid == uid
+        && changed.hasOnly([
+          'displayName', 'phone', 'location', 'accountStatus',
+          'selectedTrainerId', 'trainerSelectedAt', 'updatedAt'
+        ])
+        && isShortString(data.displayName, 100)
+        && optionalShortString(data, 'phone', 40)
+        && optionalShortString(data, 'location', 200)
+        && data.updatedAt == request.time
+        && (
+          !changed.hasAny(['selectedTrainerId', 'trainerSelectedAt'])
+          || (
+            changed.hasAll(['selectedTrainerId', 'trainerSelectedAt'])
+            && data.selectedTrainerId is string
+            && data.trainerSelectedAt == request.time
+            && isSelectableTrainer(data.selectedTrainerId)
+          )
+        )
+        && (
+          (owns(uid) && !changed.hasAny(['accountStatus']))
+          || (isAdmin() && (!changed.hasAny(['accountStatus']) || data.accountStatus in ['pending', 'active', 'suspended']))
+        );
+    }
+
+    function validPlan(data) {
+      return data.keys().hasAll([
+          'name', 'description', 'durationDays', 'priceMinor', 'currency',
+          'benefits', 'active', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'description', 'durationDays', 'priceMinor', 'currency',
+          'benefits', 'active', 'createdAt', 'updatedAt'
+        ])
+        && isShortString(data.name, 100)
+        && isShortString(data.description, 2000)
+        && data.durationDays is int && data.durationDays > 0
+        && data.priceMinor is int && data.priceMinor >= 0
+        && data.currency is string && data.currency.matches('^[A-Z]{3}$')
+        && data.benefits is list && data.benefits.size() <= 30
+        && data.active is bool
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function validTrainer(data) {
+      return data.keys().hasAll([
+          'displayName', 'bio', 'specializations', 'availability',
+          'active', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'displayName', 'bio', 'specializations', 'availability',
+          'experienceYears', 'profileImageUrl', 'active', 'createdAt', 'updatedAt'
+        ])
+        && isShortString(data.displayName, 100)
+        && isShortString(data.bio, 3000)
+        && data.specializations is list && data.specializations.size() <= 20
+        && data.availability is map && data.availability.keys().size() <= 50
+        && (!('experienceYears' in data)
+          || (data.experienceYears is int && data.experienceYears >= 0 && data.experienceYears <= 80))
+        && (!('profileImageUrl' in data) || data.profileImageUrl == null
+          || (isShortString(data.profileImageUrl, 2048) && data.profileImageUrl.matches('^https?://.+$')))
+        && data.active is bool
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function validTrainerPrivate(data) {
+      return data.keys().hasAll(['email', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['email', 'phone', 'createdAt', 'updatedAt'])
+        && isShortString(data.email, 254)
+        && data.email.size() > 0
+        && optionalShortString(data, 'phone', 40)
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function publicTrainerFieldsOnly(data) {
+      return data.keys().hasOnly([
+        'displayName', 'bio', 'specializations', 'availability',
+        'experienceYears', 'profileImageUrl', 'active', 'createdAt', 'updatedAt'
+      ]);
+    }
+
+    function isSelectableTrainer(trainerId) {
+      let trainerPath = /databases/$(database)/documents/trainers/$(trainerId);
+      return exists(trainerPath) && get(trainerPath).data.active == true;
+    }
+
+    function trainerExists(data) {
+      return !('trainerId' in data)
+        || data.trainerId == null
+        || (
+          data.trainerId is string
+          && exists(/databases/$(database)/documents/trainers/$(data.trainerId))
+        );
+    }
+
+    function activeTrainerExists(data) {
+      return trainerExists(data)
+        && (
+          !('trainerId' in data)
+          || data.trainerId == null
+          || get(/databases/$(database)/documents/trainers/$(data.trainerId)).data.active == true
+        );
+    }
+
+    function validBooking(data) {
+      return data.keys().hasAll([
+          'memberUid', 'bookingAt', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'memberUid', 'trainerId', 'bookingAt', 'status', 'createdAt', 'updatedAt'
+        ])
+        && data.memberUid is string
+        && data.bookingAt is timestamp
+        && data.status in ['requested', 'confirmed', 'cancelled', 'completed']
+        && trainerExists(data)
+        && data.createdAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    function validPlanSnapshot(snapshot, plan) {
+      return snapshot is map
+        && snapshot.keys().hasAll([
+          'name', 'description', 'durationDays', 'priceMinor', 'currency', 'benefits'
+        ])
+        && snapshot.keys().hasOnly([
+          'name', 'description', 'durationDays', 'priceMinor', 'currency', 'benefits'
+        ])
+        && snapshot.name == plan.name
+        && snapshot.description == plan.description
+        && snapshot.durationDays == plan.durationDays
+        && snapshot.durationDays <= 36500
+        && snapshot.priceMinor == plan.priceMinor
+        && snapshot.currency == plan.currency
+        && snapshot.benefits == plan.benefits;
+    }
+
+    function validMembershipRequestCreate(uid, requestId) {
+      let data = request.resource.data;
+      let planPath = /databases/$(database)/documents/membershipPlans/$(data.planId);
+      let memberPath = /databases/$(database)/documents/users/$(uid);
+      let membershipPath = /databases/$(database)/documents/memberships/$(data.membershipId);
+      return data.keys().hasAll([
+          'memberUid', 'memberName', 'memberEmail', 'planId', 'planSnapshot',
+          'membershipId', 'status', 'requestedAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'memberUid', 'memberName', 'memberEmail', 'planId', 'planSnapshot',
+          'membershipId', 'status', 'requestedAt', 'updatedAt'
+        ])
+        && data.memberUid == uid
+        && data.planId is string
+        && data.planId.size() > 0
+        && data.planId == requestId
+        && exists(memberPath)
+        && data.memberName == get(memberPath).data.displayName
+        && isShortString(data.memberName, 100)
+        && request.auth.token.email is string
+        && data.memberEmail == request.auth.token.email
+        && data.membershipId is string
+        && data.membershipId.size() > 0
+        && data.status == 'pending_review'
+        && data.requestedAt == request.time
+        && data.updatedAt == request.time
+        && exists(planPath)
+        && get(planPath).data.active == true
+        && validPlanSnapshot(data.planSnapshot, get(planPath).data)
+        && !exists(membershipPath);
+    }
+
+    function validMembershipAfterApproval(uid, requestId) {
+      let requestData = getAfter(
+        /databases/$(database)/documents/users/$(uid)/membershipRequests/$(requestId)
+      ).data;
+      let membershipPath = /databases/$(database)/documents/memberships/$(resource.data.membershipId);
+      let membership = getAfter(membershipPath).data;
+      let durationMs = requestData.planSnapshot.durationDays * 86400000;
+      return existsAfter(membershipPath)
+        && requestData.status == 'approved'
+        && requestData.reviewedByUid == request.auth.uid
+        && requestData.reviewedAt == request.time
+        && membership.memberUid == uid
+        && membership.planId == requestData.planId
+        && membership.planName == requestData.planSnapshot.name
+        && membership.requestId == requestId
+        && membership.status == 'active'
+        && membership.paymentStatus == 'unpaid'
+        && membership.startAt == request.time
+        && membership.endAt is timestamp
+        && membership.endAt.toMillis() >= request.time.toMillis() + durationMs - 300000
+        && membership.endAt.toMillis() <= request.time.toMillis() + durationMs + 300000
+        && membership.createdAt == request.time
+        && membership.updatedAt == request.time;
+    }
+
+    function validMembershipRequestReview(uid, requestId) {
+      let data = request.resource.data;
+      let changed = data.diff(resource.data).affectedKeys();
+      let membershipPath = /databases/$(database)/documents/memberships/$(resource.data.membershipId);
+      return resource.data.status == 'pending_review'
+        && changed.hasOnly(['status', 'reviewedByUid', 'reviewedAt', 'rejectionReason', 'updatedAt'])
+        && data.status in ['approved', 'rejected']
+        && data.reviewedByUid == request.auth.uid
+        && data.reviewedAt == request.time
+        && data.updatedAt == request.time
+        && (
+          (
+            data.status == 'approved'
+            && !('rejectionReason' in data)
+            && validMembershipAfterApproval(uid, requestId)
+          )
+          || (
+            data.status == 'rejected'
+            && optionalShortString(data, 'rejectionReason', 1000)
+            && !exists(membershipPath)
+          )
+        );
+    }
+
+    function validMembershipCreate(membershipId) {
+      let data = request.resource.data;
+      let requestPath = /databases/$(database)/documents/users/$(data.memberUid)/membershipRequests/$(data.requestId);
+      let requestData = getAfter(requestPath).data;
+      let durationMs = requestData.planSnapshot.durationDays * 86400000;
+      return data.keys().hasAll([
+          'memberUid', 'planId', 'planName', 'requestId', 'startAt', 'endAt', 'status',
+          'paymentStatus', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'memberUid', 'planId', 'planName', 'requestId', 'startAt', 'endAt', 'status',
+          'paymentStatus', 'createdAt', 'updatedAt'
+        ])
+        && data.memberUid is string
+        && data.planId is string
+        && data.planName == requestData.planSnapshot.name
+        && data.requestId is string
+        && existsAfter(requestPath)
+        && requestData.status == 'approved'
+        && requestData.membershipId == membershipId
+        && requestData.memberUid == data.memberUid
+        && requestData.planId == data.planId
+        && requestData.reviewedByUid == request.auth.uid
+        && data.status == 'active'
+        && data.paymentStatus == 'unpaid'
+        && data.startAt == request.time
+        && data.endAt is timestamp
+        && data.endAt.toMillis() >= request.time.toMillis() + durationMs - 300000
+        && data.endAt.toMillis() <= request.time.toMillis() + durationMs + 300000
+        && data.createdAt == request.time
+        && data.updatedAt == request.time;
+    }
+
+    function validEnquiryUpdate() {
+      let data = request.resource.data;
+      let changed = data.diff(resource.data).affectedKeys();
+      return changed.hasOnly(['status', 'updatedAt'])
+        && data.status in ['new', 'in_review', 'resolved']
+        && data.updatedAt == request.time;
+    }
+
+    match /users/{uid} {
+      allow get, list: if owns(uid) || isAdmin();
+      allow create: if owns(uid) && validUserCreate(uid);
+      allow update: if (owns(uid) || isAdmin()) && validUserProfileUpdate(uid);
+      allow delete: if false;
+
+      match /membershipRequests/{requestId} {
+        allow get, list: if owns(uid) || isAdmin();
+        allow create: if owns(uid) && validMembershipRequestCreate(uid, requestId);
+        allow update: if isAdmin() && validMembershipRequestReview(uid, requestId);
+        allow delete: if false;
+      }
+    }
+
+    match /{path=**}/membershipRequests/{requestId} {
+      allow list: if isAdmin();
+    }
+
+    match /membershipPlans/{planId} {
+      allow get, list: if isAdmin() || resource.data.active == true;
+      allow create: if isAdmin()
+        && validPlan(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && validPlan(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+    }
+
+    match /memberships/{membershipId} {
+      allow get, list: if isAdmin() || (signedIn() && resource.data.memberUid == request.auth.uid);
+      allow create: if isAdmin() && validMembershipCreate(membershipId);
+      allow update, delete: if false;
+    }
+
+    match /bookings/{bookingId} {
+      allow get, list: if isAdmin() || (signedIn() && resource.data.memberUid == request.auth.uid);
+      allow create: if isAdmin()
+        && validBooking(request.resource.data)
+        && request.resource.data.bookingAt > request.time
+        && activeTrainerExists(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && validBooking(request.resource.data)
+        && request.resource.data.memberUid == resource.data.memberUid
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+    }
+
+    match /attendance/{attendanceId} {
+      allow get, list: if isAdmin() || (signedIn() && resource.data.memberUid == request.auth.uid);
+      allow create, update, delete: if false;
+    }
+
+    match /trainers/{trainerId} {
+      allow get, list: if isAdmin()
+        || (resource.data.active == true && publicTrainerFieldsOnly(resource.data));
+      allow create: if isAdmin()
+        && validTrainer(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && validTrainer(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+    }
+
+    match /trainerPrivate/{trainerId} {
+      allow get, list: if isAdmin();
+      allow create: if isAdmin()
+        && validTrainerPrivate(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin()
+        && validTrainerPrivate(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if false;
+    }
+
+    match /enquiries/{enquiryId} {
+      allow get, list: if isAdmin();
+      allow create: if false;
+      allow update: if isAdmin() && validEnquiryUpdate();
+      allow delete: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow get, list: if isAdmin() || (signedIn() && resource.data.memberUid == request.auth.uid);
+      allow create, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

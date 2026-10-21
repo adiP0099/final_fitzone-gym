@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #f5f2eb;
+  background: #11110f;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --ink: #11110f;
+  --panel: #191917;
+  --panel-2: #20201d;
+  --paper: #f4f1ea;
+  --orange: #ff5a1f;
+  --orange-bright: #ff6d35;
+  --muted: #aaa9a2;
+  --line: rgba(255,255,255,.12);
+  --display: 'Oswald', Impact, sans-serif;
+}

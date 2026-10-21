@@ -1,0 +1,147 @@
+.dash-columns {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
+}
+
+.admin-add-form select {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 13px 14px;
+  border: 1px solid #e1ded7;
+  border-radius: 2px;
+  background: #fbfaf7;
+  color: #25251f;
+  font: inherit;
+  font-size: 12px;
+}
+
+.auth-loading {
+  min-height: 100vh;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  background: var(--ink);
+  color: #c7c5be;
+  font-size: 13px;
+}
+
+.auth-loading p {
+  margin: 0;
+}
+
+.auth-loading-indicator {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, .2);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: auth-loading-spin .8s linear infinite;
+}
+
+.account-form .form-feedback.error {
+  color: #a52d1d;
+}
+
+.account-form button:disabled,
+.sidebar-bottom button:disabled {
+  cursor: wait;
+  opacity: .65;
+}
+
+.dashboard-content .plans-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.trainer-selection-panel {
+  margin-bottom: 14px;
+}
+
+.trainer-art-image {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trainer-card-copy > .button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.member-data-message {
+  margin: 12px 0;
+  color: #77766f;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.member-data-message.error,
+.form-feedback.error {
+  color: #a52d1d;
+}
+
+.membership-panel .member-data-message {
+  color: #c7c5be;
+}
+
+.request-confirmation {
+  margin-top: 22px;
+}
+
+.request-confirmation h3 {
+  margin: 0 0 10px;
+  font: 500 26px/1.1 var(--display);
+}
+
+.request-confirmation > p:not(.eyebrow, .sample-caption) {
+  color: #c7c5be;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.request-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.request-review-actions .table-action {
+  color: var(--orange);
+}
+
+.request-rejection-reason {
+  display: block;
+  margin: 18px 0;
+  color: #24241f;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.request-rejection-reason textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: 1px solid #e1ded7;
+  border-radius: 2px;
+  background: #fbfaf7;
+  color: #25251f;
+  font: inherit;
+  font-size: 12px;
+  resize: vertical;
+}
+
+@keyframes auth-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .dash-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
