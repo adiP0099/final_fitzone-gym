@@ -1,11 +1,10 @@
-import { collection, doc, getDocs, orderBy, query, serverTimestamp, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, serverTimestamp, updateDoc, where } from 'firebase/firestore'
 import {
   assertString,
   readCollection,
   requireAdmin,
   runWrite,
   toServiceError,
-  trustedWorkflowRequired,
   watchAfterAuth,
   watchCollection,
 } from './core.js'
@@ -47,8 +46,40 @@ export function createEnquiryService({ db, auth }) {
       })
     },
 
-    submitEnquiry() {
-      return Promise.reject(trustedWorkflowRequired('Enquiry creation is denied by Firestore rules; it requires a trusted submission endpoint.'))
+    updateEnquiryReadStatusForAdmin(enquiryId, isRead) {
+      return requireAdmin(auth).then(() => {
+        const id = assertString(enquiryId, 'Enquiry ID', { maxLength: 150 })
+        if (typeof isRead !== 'boolean') throw new TypeError('Enquiry read status must be a boolean.')
+        return runWrite('update enquiry read status', () => updateDoc(doc(db, 'enquiries', id), {
+          isRead,
+          updatedAt: serverTimestamp(),
+        }))
+      })
+    },
+
+    deleteEnquiryForAdmin(enquiryId) {
+      return requireAdmin(auth).then(() => {
+        const id = assertString(enquiryId, 'Enquiry ID', { maxLength: 150 })
+        return runWrite('delete enquiry', () => deleteDoc(doc(db, 'enquiries', id)))
+      })
+    },
+
+    submitEnquiry(input) {
+      const enquiry = {
+        name: input?.name,
+        email: input?.email,
+        phone: input?.phone,
+        subject: input?.subject,
+        message: input?.message,
+        status: 'new',
+        isRead: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }
+      return runWrite('submit enquiry', async () => {
+        const reference = await addDoc(collection(db, 'enquiries'), enquiry)
+        return { id: reference.id }
+      })
     },
 
     getEnquiriesByStatusForAdmin(status) {

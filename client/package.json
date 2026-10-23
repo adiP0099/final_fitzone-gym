@@ -11,7 +11,8 @@
     "build": "vite build",
     "lint": "oxlint src",
     "preview": "vite preview",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-fitzone-rules \"node --test test/firestore.rules.test.js test/firestore.services.test.js\""
+    "test:rules": "firebase emulators:exec --only firestore --project demo-fitzone-rules \"node --test test/firestore.rules.test.js test/firestore.services.test.js\"",
+    "test:functions": "firebase emulators:exec --only firestore,functions --project demo-fitzone-contact \"node --test functions/test/enquiries.test.js\""
   },
   "dependencies": {
     "firebase": "^13.0.0",

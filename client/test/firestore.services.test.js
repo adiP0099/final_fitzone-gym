@@ -127,8 +127,15 @@ before(async () => {
         active: false,
       }),
       setDoc(doc(db, 'enquiries/service-enquiry'), {
+        name: 'Service Sender',
+        email: 'service-sender@example.test',
+        phone: '+1 555 555 5555',
+        subject: 'General Inquiry',
+        message: 'Service test enquiry.',
         status: 'new',
+        isRead: false,
         createdAt: now,
+        updatedAt: now,
       }),
     ])
   })
@@ -715,10 +722,56 @@ test('administrator services require a trusted claim and rules authorization', a
   })
   assert.equal(typeof planId, 'string')
 
+  const submitted = await memberServices.enquiries.submitEnquiry({
+    name: 'Service Contact Sender',
+    email: 'sender@example.test',
+    phone: '+1 (800) 555-3489',
+    subject: 'Membership Plans & Pricing',
+    message: 'Could you tell me about memberships?',
+  })
+  assert.equal(typeof submitted.id, 'string')
+
+  const savedEnquiry = await getDoc(doc(adminServices.db, `enquiries/${submitted.id}`))
+  assert.equal(savedEnquiry.exists(), true)
+  assert.deepEqual(Object.keys(savedEnquiry.data()).sort(), [
+    'name', 'email', 'phone', 'subject', 'message', 'status', 'isRead', 'createdAt', 'updatedAt',
+  ].sort())
+  assert.equal(savedEnquiry.data().status, 'new')
+  assert.equal(savedEnquiry.data().isRead, false)
+  assert.ok(savedEnquiry.data().createdAt instanceof Date || typeof savedEnquiry.data().createdAt?.toDate === 'function')
+  assert.ok(savedEnquiry.data().updatedAt instanceof Date || typeof savedEnquiry.data().updatedAt?.toDate === 'function')
+})
+
+test('enquiry admin service reads, updates read state, and deletes only for trusted admins', async () => {
+  const adminServices = servicesFor('service-enquiry-admin', { role: 'admin' })
+  const memberServices = servicesFor('service-enquiry-member', { role: 'member' })
+
+  const initial = await adminServices.enquiries.getEnquiriesForAdmin()
+  assert.equal(initial.empty, false)
+  assert.ok(initial.data.some((item) => item.id === 'service-enquiry'))
+
+  await adminServices.enquiries.updateEnquiryReadStatusForAdmin('service-enquiry', true)
+  let saved = await getDoc(doc(adminServices.db, 'enquiries/service-enquiry'))
+  assert.equal(saved.data().isRead, true)
+  assert.ok(saved.data().updatedAt instanceof Date || typeof saved.data().updatedAt?.toDate === 'function')
+
+  await adminServices.enquiries.updateEnquiryStatusForAdmin('service-enquiry', 'in_review')
+  saved = await getDoc(doc(adminServices.db, 'enquiries/service-enquiry'))
+  assert.equal(saved.data().status, 'in_review')
+
   await assert.rejects(
-    adminServices.enquiries.submitEnquiry({ message: 'not supported directly' }),
-    /trusted submission endpoint/,
+    adminServices.enquiries.updateEnquiryReadStatusForAdmin('service-enquiry', 'yes'),
+    /must be a boolean/,
   )
+  await assert.rejects(memberServices.enquiries.getEnquiriesForAdmin(), {
+    code: 'firestore/permission-denied',
+  })
+  await assert.rejects(memberServices.enquiries.deleteEnquiryForAdmin('service-enquiry'), {
+    code: 'firestore/permission-denied',
+  })
+
+  await adminServices.enquiries.deleteEnquiryForAdmin('service-enquiry')
+  assert.equal((await getDoc(doc(adminServices.db, 'enquiries/service-enquiry'))).exists(), false)
 })
 
 test('payment, attendance, membership, and member booking writes remain restricted', async () => {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation, Link, useNavigate } from 'react-router-dom'
-import { CreditCard, Dumbbell, LayoutDashboard, Menu, UserRound, Users, X, LogOut, ClipboardCheck } from 'lucide-react'
+import { CreditCard, Dumbbell, LayoutDashboard, Menu, UserRound, Users, X, LogOut, ClipboardCheck, Mail } from 'lucide-react'
 import Brand from '../components/Brand.jsx'
 import { getAuthErrorMessage, useAuth } from '../contexts/AuthContext.jsx'
 
@@ -21,6 +21,7 @@ export default function DashboardLayout({ kind }) {
   const links = admin ? [
     ['Overview', '/admin', LayoutDashboard, true], ['Members', '/admin/members', Users], ['Membership plans', '/admin/plans', CreditCard],
     ['Membership requests', '/admin/membership-requests', ClipboardCheck],
+    ['Enquiries', '/admin/enquiries', Mail],
     ['Trainers', '/admin/trainers', Dumbbell],
     ['Payments & reports', '/admin/payments', CreditCard],
   ] : memberLinks

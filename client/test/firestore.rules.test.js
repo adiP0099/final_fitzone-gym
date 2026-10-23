@@ -24,6 +24,21 @@ import {
 const projectId = 'demo-fitzone-rules'
 assert.match(projectId, /^demo-/, 'Rules tests must use a dedicated Firebase demo project ID.')
 
+function enquiryDocument(overrides = {}) {
+  return {
+    name: 'Alex Johnson',
+    email: 'alex@example.com',
+    phone: '+1 (800) 555-3489',
+    subject: 'General Inquiry',
+    message: 'I would like to learn more about FitZone.',
+    status: 'new',
+    isRead: false,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    ...overrides,
+  }
+}
+
 const requestPlans = {
   'active-plan': {
     name: 'Active Plan',
@@ -149,7 +164,37 @@ async function seedDocuments() {
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
-      setDoc(doc(db, 'enquiries/enquiry-a'), { status: 'new' }),
+      ...['enquiry-a', 'enquiry-status-update', 'enquiry-read-update', 'enquiry-delete'].map((id) => setDoc(doc(db, `enquiries/${id}`), {
+        name: 'Test Sender',
+        email: 'sender@example.test',
+        phone: '+1 555 555 5555',
+        subject: 'General Inquiry',
+        message: 'Test enquiry body.',
+        status: 'new',
+        isRead: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
+      setDoc(doc(db, 'enquiries/enquiry-legacy-no-read'), {
+        name: 'Legacy Sender',
+        email: 'legacy@example.test',
+        phone: null,
+        subject: null,
+        message: 'Legacy message without a read flag.',
+        status: 'new',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+      setDoc(doc(db, 'enquiries/enquiry-legacy-no-status'), {
+        name: 'Legacy Sender',
+        email: 'legacy@example.test',
+        phone: null,
+        subject: null,
+        message: 'Legacy message without a workflow status.',
+        isRead: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
     ])
   })
 }
@@ -409,6 +454,113 @@ test('trusted admin custom claims permit administrative reads and writes', async
     status: 'in_review',
     updatedAt: serverTimestamp(),
   }))
+})
+
+test('public visitors can create valid enquiries with every Contact Page option', async () => {
+  const db = testEnv.unauthenticatedContext().firestore()
+  const subjects = [
+    'General Inquiry',
+    'Membership Plans & Pricing',
+    'Personal Coaching',
+    'Claim a Free Day Pass',
+    'Facility Tour & Amenities',
+  ]
+  const phones = [
+    '+1 (800) 555-3489',
+    '555-555-5555',
+    '1234567',
+    '+123456789012345',
+    '1234567-',
+  ]
+  let validIndex = 0
+
+  for (const subject of subjects) {
+    for (const phone of phones) {
+      await assertSucceeds(setDoc(
+        doc(db, `enquiries/public-valid-${validIndex++}`),
+        enquiryDocument({ subject, phone }),
+      ))
+    }
+  }
+
+  const invalidDocuments = [
+    { id: 'missing-phone', data: (() => { const { phone, ...data } = enquiryDocument(); return data })() },
+    { id: 'extra-role', data: enquiryDocument({ role: 'admin' }) },
+    { id: 'bad-email', data: enquiryDocument({ email: 'not-an-email' }) },
+    { id: 'bad-phone-short', data: enquiryDocument({ phone: '123-45' }) },
+    { id: 'bad-phone-characters', data: enquiryDocument({ phone: '+1 800 FITZONE' }) },
+    { id: 'bad-subject', data: enquiryDocument({ subject: 'Other topic' }) },
+    { id: 'bad-status', data: enquiryDocument({ status: 'resolved' }) },
+    { id: 'bad-read-state', data: enquiryDocument({ isRead: true }) },
+    { id: 'bad-timestamp', data: enquiryDocument({ createdAt: new Date() }) },
+    { id: 'long-name', data: enquiryDocument({ name: 'x'.repeat(101) }) },
+    { id: 'long-message', data: enquiryDocument({ message: 'x'.repeat(5001) }) },
+    { id: 'blank-message', data: enquiryDocument({ message: '  \n  ' }) },
+  ]
+
+  for (const { id, data } of invalidDocuments) {
+    await assertFails(setDoc(doc(db, `enquiries/public-invalid-${id}`), data))
+  }
+
+  await assertFails(getDoc(doc(db, 'enquiries/public-valid-0')))
+  await assertFails(getDocs(collection(db, 'enquiries')))
+  await assertFails(updateDoc(doc(db, 'enquiries/public-valid-0'), {
+    isRead: true,
+    updatedAt: serverTimestamp(),
+  }))
+  await assertFails(deleteDoc(doc(db, 'enquiries/public-valid-0')))
+})
+
+test('only trusted admins can read, manage approved enquiry fields, and delete enquiries', async () => {
+  const adminDb = testEnv.authenticatedContext('trusted-admin', { role: 'admin' }).firestore()
+  const memberDb = testEnv.authenticatedContext('member-a', { role: 'member' }).firestore()
+  const profileOnlyDb = testEnv.authenticatedContext('profile-role-admin').firestore()
+  const publicDb = testEnv.unauthenticatedContext().firestore()
+
+  await assertSucceeds(getDoc(doc(adminDb, 'enquiries/enquiry-a')))
+  await assertSucceeds(getDocs(collection(adminDb, 'enquiries')))
+  for (const db of [memberDb, profileOnlyDb, publicDb]) {
+    await assertFails(getDoc(doc(db, 'enquiries/enquiry-a')))
+    await assertFails(getDocs(collection(db, 'enquiries')))
+  }
+
+  await assertSucceeds(setDoc(doc(adminDb, 'enquiries/admin-valid-create'), enquiryDocument()))
+  await assertFails(setDoc(doc(publicDb, 'enquiries/public-invalid-create'), { message: 'Denied' }))
+
+  await assertSucceeds(updateDoc(doc(adminDb, 'enquiries/enquiry-status-update'), {
+    status: 'resolved', updatedAt: serverTimestamp(),
+  }))
+  await assertSucceeds(updateDoc(doc(adminDb, 'enquiries/enquiry-read-update'), {
+    isRead: true, updatedAt: serverTimestamp(),
+  }))
+  await assertFails(updateDoc(doc(adminDb, 'enquiries/enquiry-a'), {
+    status: 'deleted', updatedAt: serverTimestamp(),
+  }))
+  await assertFails(updateDoc(doc(adminDb, 'enquiries/enquiry-a'), {
+    isRead: 'true', updatedAt: serverTimestamp(),
+  }))
+  await assertFails(updateDoc(doc(adminDb, 'enquiries/enquiry-a'), {
+    isRead: true, updatedAt: new Date(),
+  }))
+  await assertFails(updateDoc(doc(adminDb, 'enquiries/enquiry-a'), {
+    isRead: true, message: 'Changed body', updatedAt: serverTimestamp(),
+  }))
+  await assertFails(updateDoc(doc(memberDb, 'enquiries/enquiry-a'), {
+    isRead: true, updatedAt: serverTimestamp(),
+  }))
+
+  await assertSucceeds(updateDoc(doc(adminDb, 'enquiries/enquiry-legacy-no-read'), {
+    status: 'resolved',
+    updatedAt: serverTimestamp(),
+  }))
+  await assertSucceeds(updateDoc(doc(adminDb, 'enquiries/enquiry-legacy-no-status'), {
+    isRead: true,
+    updatedAt: serverTimestamp(),
+  }))
+
+  await assertFails(deleteDoc(doc(memberDb, 'enquiries/enquiry-delete')))
+  await assertFails(deleteDoc(doc(publicDb, 'enquiries/enquiry-delete')))
+  await assertSucceeds(deleteDoc(doc(adminDb, 'enquiries/enquiry-delete')))
 })
 
 test('public reads are limited to active plans and trainers', async () => {
@@ -760,7 +912,6 @@ test('sensitive direct writes and all deletes are denied', async () => {
     'bookings/member-a-record',
     'attendance/member-a-record',
     'trainers/active-trainer',
-    'enquiries/enquiry-a',
     'payments/member-a-record',
   ]) {
     await assertFails(deleteDoc(doc(db, path)))

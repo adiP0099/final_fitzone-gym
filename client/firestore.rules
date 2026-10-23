@@ -304,8 +304,57 @@ service cloud.firestore {
     function validEnquiryUpdate() {
       let data = request.resource.data;
       let changed = data.diff(resource.data).affectedKeys();
-      return changed.hasOnly(['status', 'updatedAt'])
-        && data.status in ['new', 'in_review', 'resolved']
+      return changed.hasOnly(['status', 'isRead', 'updatedAt'])
+        && changed.hasAny(['status', 'isRead'])
+        && (
+          (('status' in data) && data.status in ['new', 'in_review', 'resolved'])
+          || (!('status' in data) && !changed.hasAny(['status']))
+        )
+        && (
+          (('isRead' in data) && data.isRead is bool)
+          || (!('isRead' in data) && !changed.hasAny(['isRead']))
+        )
+        && data.updatedAt == request.time;
+    }
+
+    function validEnquiryCreate() {
+      let data = request.resource.data;
+      return data.keys().hasAll([
+          'name', 'email', 'phone', 'subject', 'message',
+          'status', 'isRead', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'name', 'email', 'phone', 'subject', 'message',
+          'status', 'isRead', 'createdAt', 'updatedAt'
+        ])
+        && data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 100
+        && data.name.matches('(?s).*\\S.*')
+        && data.email is string
+        && data.email.size() >= 3
+        && data.email.size() <= 254
+        && data.email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$')
+        && data.phone is string
+        && data.phone.size() >= 7
+        && data.phone.size() <= 40
+        && data.phone.matches('^\\+?[\\s().-]*([0-9][\\s().-]*){7,15}$')
+        && data.subject in [
+          'General Inquiry',
+          'Membership Plans & Pricing',
+          'Personal Coaching',
+          'Claim a Free Day Pass',
+          'Facility Tour & Amenities'
+        ]
+        && data.message is string
+        && data.message.size() >= 1
+        && data.message.size() <= 5000
+        && data.message.matches('(?s).*\\S.*')
+        && data.status is string
+        && data.status == 'new'
+        && data.isRead is bool
+        && data.isRead == false
+        && data.createdAt == request.time
         && data.updatedAt == request.time;
     }
 
@@ -388,9 +437,9 @@ service cloud.firestore {
 
     match /enquiries/{enquiryId} {
       allow get, list: if isAdmin();
-      allow create: if false;
+      allow create: if validEnquiryCreate();
       allow update: if isAdmin() && validEnquiryUpdate();
-      allow delete: if false;
+      allow delete: if isAdmin();
     }
 
     match /payments/{paymentId} {

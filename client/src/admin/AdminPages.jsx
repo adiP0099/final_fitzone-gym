@@ -8,6 +8,7 @@ import AdminMembershipPlans from './AdminMembershipPlans.jsx'
 import AdminMembers from './AdminMembers.jsx'
 import AdminTrainers from './AdminTrainers.jsx'
 import AdminPayments from './AdminPayments.jsx'
+import AdminEnquiries from './AdminEnquiries.jsx'
 
 const configs = {
   members: { title: 'Member management', icon: Users },
@@ -24,6 +25,7 @@ export default function AdminPages({ page }) {
   if (page === 'plans') return <AdminMembershipPlans />
   if (page === 'membership-requests') return <MembershipRequestsPage />
   if (page === 'payments') return <AdminPayments />
+  if (page === 'enquiries') return <AdminEnquiries />
   if (page === 'overview') return <AdminOverview />
   return null
 }

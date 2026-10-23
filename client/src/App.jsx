@@ -45,6 +45,7 @@ export default function App() {
               <Route path="members" element={<AdminPages page="members" />} />
               <Route path="plans" element={<AdminPages page="plans" />} />
               <Route path="membership-requests" element={<AdminPages page="membership-requests" />} />
+              <Route path="enquiries" element={<AdminPages page="enquiries" />} />
               <Route path="trainers" element={<AdminPages page="trainers" />} />
               <Route path="payments" element={<AdminPages page="payments" />} />
             </Route>

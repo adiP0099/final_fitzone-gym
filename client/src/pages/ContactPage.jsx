@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ArrowRight,
@@ -11,7 +11,36 @@ import {
   Send,
   ShieldCheck,
 } from 'lucide-react'
+import { enquiries } from '../services/firestore/index.js'
 import '../styles/ContactPage.css'
+
+const SUBJECT_OPTIONS = [
+  'General Inquiry',
+  'Membership Plans & Pricing',
+  'Personal Coaching',
+  'Claim a Free Day Pass',
+  'Facility Tour & Amenities',
+]
+
+function validatePhone(phone) {
+  const value = phone.trim()
+  const digits = value.replace(/\D/g, '')
+  return /^\+?[\d\s().-]+$/.test(value) && digits.length >= 7 && digits.length <= 15
+}
+
+function validateContactForm({ name, email, phone, subject, message }) {
+  const values = { name: name.trim(), email: email.trim(), phone: phone.trim(), subject, message: message.trim() }
+  if (!values.name || values.name.length > 100) return 'Enter a name of 1 to 100 characters.'
+  if (!values.email || values.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+    return 'Enter a valid email address.'
+  }
+  if (values.phone.length > 40 || !validatePhone(values.phone)) {
+    return 'Enter a valid phone number with 7 to 15 digits.'
+  }
+  if (!SUBJECT_OPTIONS.includes(values.subject)) return 'Select a valid enquiry topic.'
+  if (!values.message || values.message.length > 5000) return 'Enter a message of 1 to 5000 characters.'
+  return ''
+}
 
 const CONTACT_INFO = [
   {
@@ -76,26 +105,50 @@ export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     subject: 'General Inquiry',
     message: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [submissionError, setSubmissionError] = useState('')
+  const submissionLock = useRef(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsSubmitting(true)
+    if (submissionLock.current) return
 
-    // Simulate reliable form submission feedback
-    setTimeout(() => {
-      setIsSubmitting(false)
+    const validationError = validateContactForm(formData)
+    if (validationError) {
+      setSubmissionError(validationError)
+      return
+    }
+
+    submissionLock.current = true
+    setIsSubmitting(true)
+    setSubmissionError('')
+
+    try {
+      const result = await enquiries.submitEnquiry({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        subject: formData.subject,
+        message: formData.message.trim(),
+      })
+      if (!result?.id) throw new Error('Your message could not be confirmed. Please try again.')
       setSubmitted(true)
-    }, 600)
+    } catch (error) {
+      setSubmissionError(error.message || 'Your message could not be sent. Please try again.')
+    } finally {
+      submissionLock.current = false
+      setIsSubmitting(false)
+    }
   }
 
   const handleReset = () => {
@@ -103,9 +156,11 @@ export default function ContactPage() {
     setFormData({
       name: '',
       email: '',
+      phone: '',
       subject: 'General Inquiry',
       message: '',
     })
+    setSubmissionError('')
   }
 
   return (
@@ -240,6 +295,7 @@ export default function ContactPage() {
                       name="name"
                       type="text"
                       required
+                      maxLength={100}
                       placeholder="e.g. Alex Johnson"
                       value={formData.name}
                       onChange={handleChange}
@@ -255,6 +311,23 @@ export default function ContactPage() {
                       required
                       placeholder="alex@example.com"
                       value={formData.email}
+                      maxLength={254}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="contact-phone">Phone Number *</label>
+                    <input
+                      id="contact-phone"
+                      name="phone"
+                      type="tel"
+                      required
+                      maxLength={40}
+                      inputMode="tel"
+                      autoComplete="tel"
+                      placeholder="e.g. +1 (800) 555-3489"
+                      value={formData.phone}
                       onChange={handleChange}
                     />
                   </div>
@@ -264,20 +337,11 @@ export default function ContactPage() {
                     <select
                       id="contact-subject"
                       name="subject"
+                      required
                       value={formData.subject}
                       onChange={handleChange}
                     >
-                      <option value="General Inquiry">General Inquiry</option>
-                      <option value="Membership Plans & Pricing">
-                        Membership Plans & Pricing
-                      </option>
-                      <option value="Personal Coaching">Personal Coaching</option>
-                      <option value="Claim a Free Day Pass">
-                        Claim a Free Day Pass
-                      </option>
-                      <option value="Facility Tour & Amenities">
-                        Facility Tour & Amenities
-                      </option>
+                      {SUBJECT_OPTIONS.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
                     </select>
                   </div>
 
@@ -288,6 +352,7 @@ export default function ContactPage() {
                       name="message"
                       rows={5}
                       required
+                      maxLength={5000}
                       placeholder="How can we help you reach your goals?"
                       value={formData.message}
                       onChange={handleChange}
@@ -307,6 +372,8 @@ export default function ContactPage() {
                       </>
                     )}
                   </button>
+
+                  {submissionError && <p className="form-feedback error" role="alert">{submissionError}</p>}
 
                   <p
                     style={{
