@@ -1,0 +1,579 @@
+/* FitZone Plans Page Styles - Matching Homepage Visual Identity */
+
+.plans-page {
+  background-color: #0c0c0b;
+  color: #f5f2eb;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+
+.plans-page .page-hero {
+  position: relative;
+  min-height: 480px;
+  padding: clamp(115px, 13vh, 140px) 0 70px;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  background: #090908;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.plans-page .plans-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  pointer-events: none;
+}
+
+.plans-page .plans-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(9, 9, 8, 0.98) 0%, rgba(9, 9, 8, 0.92) 38%, rgba(9, 9, 8, 0.72) 68%, rgba(9, 9, 8, 0.52) 100%),
+    linear-gradient(0deg, #0c0c0b 0%, rgba(12, 12, 11, 0.7) 20%, transparent 45%),
+    linear-gradient(180deg, rgba(9, 9, 8, 0.85) 0%, transparent 25%);
+}
+
+.plans-page .plans-hero-container {
+  position: relative;
+  z-index: 1;
+}
+
+.plans-page .plans-hero-content {
+  max-width: 660px;
+}
+
+.plans-page .plans-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  color: var(--orange, #ff5a1f);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.plans-page .plans-eyebrow-line {
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+  background: var(--orange, #ff5a1f);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.plans-page .plans-hero-content h1 {
+  margin: 0;
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: clamp(50px, 6.4vw, 82px);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.6);
+}
+
+.plans-page .plans-hero-content h1 em {
+  font-style: normal;
+  color: var(--orange, #ff5a1f);
+  text-shadow: 0 0 35px rgba(255, 90, 31, 0.4);
+}
+
+.plans-page .plans-hero-lead {
+  max-width: 500px;
+  margin: 20px 0 0;
+  color: rgba(245, 242, 235, 0.82);
+  font-size: 16px;
+  line-height: 1.68;
+}
+
+/* ==========================================================================
+   Section Headings
+   ========================================================================== */
+
+.plans-page .section-heading {
+  margin-bottom: 42px;
+}
+
+.plans-page .section-heading .eyebrow {
+  margin-bottom: 14px;
+  color: var(--orange, #ff5a1f);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.plans-page .section-heading h2 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: clamp(38px, 4.6vw, 56px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.plans-page .section-heading h2 em {
+  font-style: normal;
+  color: var(--orange, #ff5a1f);
+}
+
+.plans-page .section-intro {
+  color: rgba(245, 242, 235, 0.7);
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 400px;
+}
+
+/* ==========================================================================
+   Membership Plan Cards Grid
+   ========================================================================== */
+
+.plans-page .plans-main-section {
+  background: #0c0c0b;
+  padding: 95px 0 105px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.plans-page .plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 26px;
+  align-items: stretch;
+}
+
+.plans-page .plan-card {
+  position: relative;
+  background: #151513;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  padding: 38px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  color: #f5f2eb;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.plans-page .plan-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 90, 31, 0.45);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45), 0 0 25px rgba(255, 90, 31, 0.12);
+}
+
+/* Featured / Popular Plan */
+.plans-page .plan-card-featured {
+  border-color: var(--orange, #ff5a1f);
+  background: linear-gradient(180deg, #181815 0%, #151513 100%);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.4), 0 0 32px rgba(255, 90, 31, 0.18);
+}
+
+.plans-page .plan-card-featured:hover {
+  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 90, 31, 0.28);
+}
+
+.plans-page .plan-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: var(--orange, #ff5a1f);
+  color: #ffffff;
+  padding: 6px 14px;
+  font-family: var(--display, 'Oswald', sans-serif);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-bottom-left-radius: 6px;
+  box-shadow: 0 4px 14px rgba(255, 90, 31, 0.45);
+}
+
+.plans-page .plan-kicker {
+  color: var(--orange, #ff5a1f);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.plans-page .plan-card h3 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+
+.plans-page .plan-note {
+  color: rgba(245, 242, 235, 0.7);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 22px;
+  min-height: 40px;
+}
+
+.plans-page .plan-price {
+  margin: 0 0 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: clamp(46px, 4.2vw, 54px);
+  font-weight: 700;
+  line-height: 0.9;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.plans-page .plan-price small {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(245, 242, 235, 0.6);
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.plans-page .plan-card .button {
+  width: 100%;
+  min-height: 52px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-radius: 4px;
+  margin-bottom: 26px;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plans-page .plan-card .button-primary {
+  background: var(--orange, #ff5a1f);
+  border: 1px solid var(--orange, #ff5a1f);
+  color: #ffffff;
+  box-shadow: 0 8px 22px rgba(255, 90, 31, 0.32);
+}
+
+.plans-page .plan-card .button-primary:hover {
+  background: #e94c15;
+  border-color: #e94c15;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(255, 90, 31, 0.48);
+}
+
+.plans-page .plan-card .button-outline {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.plans-page .plan-card .button-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.plans-page .plan-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  flex: 1;
+}
+
+.plans-page .plan-card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  color: rgba(245, 242, 235, 0.85);
+  line-height: 1.5;
+}
+
+.plans-page .plan-card li svg {
+  color: var(--orange, #ff5a1f);
+  flex-shrink: 0;
+  margin-top: 2px;
+  filter: drop-shadow(0 0 6px rgba(255, 90, 31, 0.45));
+}
+
+.plans-page .sample-caption {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.38);
+  margin-top: auto;
+  padding-top: 14px;
+  text-align: center;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   Membership Inclusions / Perks Section
+   ========================================================================== */
+
+.plans-page .plans-perks-section {
+  background: #10100e;
+  padding: 95px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.plans-page .perks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.plans-page .perk-card {
+  background: #161614;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 30px 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.22s ease, border-color 0.22s ease;
+}
+
+.plans-page .perk-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 90, 31, 0.4);
+}
+
+.plans-page .perk-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  background: rgba(255, 90, 31, 0.1);
+  border: 1px solid rgba(255, 90, 31, 0.28);
+  display: grid;
+  place-items: center;
+  color: var(--orange, #ff5a1f);
+  margin-bottom: 20px;
+}
+
+.plans-page .perk-card h3 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.plans-page .perk-card p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(245, 242, 235, 0.72);
+  margin: 0;
+}
+
+/* ==========================================================================
+   FAQ Section
+   ========================================================================== */
+
+.plans-page .plans-faq-section {
+  background: #0c0c0b;
+  padding: 95px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.plans-page .faq-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.plans-page .faq-card {
+  background: #151513;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 32px 26px;
+  display: flex;
+  flex-direction: column;
+}
+
+.plans-page .faq-card h3 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+
+.plans-page .faq-card p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(245, 242, 235, 0.72);
+  margin: 0;
+}
+
+/* ==========================================================================
+   Closing CTA Section
+   ========================================================================== */
+
+.plans-page .plans-closing-cta {
+  background: linear-gradient(135deg, #161613 0%, #1c1510 50%, #24130a 100%);
+  color: #ffffff;
+  padding: 75px 0;
+  border-top: 1px solid rgba(255, 90, 31, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.plans-page .plans-closing-cta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 90, 31, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.plans-page .plans-closing-cta .eyebrow {
+  color: var(--orange, #ff5a1f);
+  margin-bottom: 12px;
+  letter-spacing: 0.2em;
+}
+
+.plans-page .plans-closing-cta h2 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: clamp(38px, 4.5vw, 56px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.plans-page .plans-closing-cta h2 em {
+  font-style: normal;
+  color: var(--orange, #ff5a1f);
+}
+
+.plans-page .plans-closing-cta .button-primary {
+  background: var(--orange, #ff5a1f);
+  border-color: var(--orange, #ff5a1f);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(255, 90, 31, 0.35);
+}
+
+.plans-page .plans-closing-cta .button-primary:hover {
+  background: #e94c15;
+  border-color: #e94c15;
+  box-shadow: 0 12px 30px rgba(255, 90, 31, 0.5);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .plans-page .page-hero {
+    min-height: 420px;
+    padding: 105px 0 60px;
+  }
+
+  .plans-page .plans-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .plans-page .perks-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .plans-page .faq-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .plans-page .plans-main-section,
+  .plans-page .plans-perks-section,
+  .plans-page .plans-faq-section {
+    padding: 75px 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .plans-page .page-hero {
+    min-height: auto;
+    padding: 95px 0 50px;
+  }
+
+  .plans-page .plans-hero-content h1 {
+    font-size: clamp(38px, 11vw, 54px);
+    line-height: 0.94;
+  }
+
+  .plans-page .plans-hero-lead {
+    font-size: 14px;
+    line-height: 1.65;
+    margin: 16px 0 0;
+  }
+
+  .plans-page .plans-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .plans-page .plan-card {
+    padding: 28px 24px 26px;
+  }
+
+  .plans-page .plan-price {
+    font-size: 44px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+  }
+
+  .plans-page .perks-grid,
+  .plans-page .faq-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .plans-page .plans-main-section,
+  .plans-page .plans-perks-section,
+  .plans-page .plans-faq-section {
+    padding: 55px 0;
+  }
+
+  .plans-page .plans-closing-cta {
+    padding: 55px 0;
+  }
+
+  .plans-page .plans-closing-cta .closing-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .plans-page .plans-closing-cta .button {
+    width: 100%;
+    justify-content: center;
+  }
+}

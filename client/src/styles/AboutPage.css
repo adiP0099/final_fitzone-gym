@@ -1,0 +1,611 @@
+/* FitZone About Page Styles - Matching Homepage Visual Identity */
+
+.about-page {
+  background-color: #0c0c0b;
+  color: #f5f2eb;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+
+.about-page .page-hero {
+  position: relative;
+  min-height: 520px;
+  padding: clamp(120px, 14vh, 150px) 0 75px;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  background: #090908;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.about-page .about-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  pointer-events: none;
+}
+
+.about-page .about-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(9, 9, 8, 0.98) 0%, rgba(9, 9, 8, 0.92) 36%, rgba(9, 9, 8, 0.72) 65%, rgba(9, 9, 8, 0.5) 100%),
+    linear-gradient(0deg, #0c0c0b 0%, rgba(12, 12, 11, 0.7) 20%, transparent 45%),
+    linear-gradient(180deg, rgba(9, 9, 8, 0.85) 0%, transparent 25%);
+}
+
+.about-page .about-hero-container {
+  position: relative;
+  z-index: 1;
+}
+
+.about-page .about-hero-content {
+  max-width: 680px;
+}
+
+.about-page .about-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 18px;
+  color: var(--orange, #ff5a1f);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.about-page .about-eyebrow-line {
+  display: inline-block;
+  width: 28px;
+  height: 2px;
+  background: var(--orange, #ff5a1f);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.about-page .about-hero-content h1 {
+  margin: 0;
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: clamp(52px, 6.6vw, 84px);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.6);
+}
+
+.about-page .about-hero-content h1 em {
+  font-style: normal;
+  color: var(--orange, #ff5a1f);
+  text-shadow: 0 0 35px rgba(255, 90, 31, 0.4);
+}
+
+.about-page .about-hero-lead {
+  max-width: 520px;
+  margin: 22px 0 34px;
+  color: rgba(245, 242, 235, 0.82);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.about-page .about-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.about-page .about-btn-primary {
+  min-height: 50px;
+  padding-inline: 24px;
+  border-radius: 4px;
+  background: var(--orange, #ff5a1f);
+  border: 1px solid var(--orange, #ff5a1f);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(255, 90, 31, 0.32);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.about-page .about-btn-primary:hover {
+  background: #e94c15;
+  border-color: #e94c15;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 90, 31, 0.48);
+}
+
+.about-page .about-btn-secondary {
+  min-height: 50px;
+  padding-inline: 24px;
+  border-radius: 4px;
+  background: rgba(18, 18, 16, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.about-page .about-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Our Story Section
+   ========================================================================== */
+
+.about-page .about-story-section {
+  background: #10100e;
+  padding: 100px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.about-page .about-story-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
+  gap: 65px;
+  align-items: center;
+}
+
+.about-page .about-story-visual {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #171714;
+}
+
+.about-page .about-story-photo {
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.about-page .about-story-visual:hover .about-story-photo {
+  transform: scale(1.02);
+}
+
+.about-page .about-story-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(12, 12, 10, 0.88) 100%);
+  pointer-events: none;
+}
+
+.about-page .about-story-badge {
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+  right: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(18, 18, 15, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.about-page .about-story-badge span {
+  display: block;
+  font-family: var(--display, 'Oswald', sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.about-page .about-story-badge span b {
+  color: var(--orange, #ff5a1f);
+}
+
+.about-page .about-story-badge small {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--muted, #aaa9a2);
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+.about-page .badge-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--orange, #ff5a1f);
+  box-shadow: 0 0 12px rgba(255, 90, 31, 0.8);
+  flex-shrink: 0;
+}
+
+.about-page .about-story-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.about-page .about-story-copy h2 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: clamp(38px, 4.4vw, 54px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  margin: 0 0 20px;
+  text-transform: uppercase;
+}
+
+.about-page .about-story-copy h2 em {
+  font-style: normal;
+  color: var(--orange, #ff5a1f);
+}
+
+.about-page .about-story-copy .body-copy {
+  color: rgba(245, 242, 235, 0.78);
+  font-size: 15px;
+  line-height: 1.8;
+  margin: 0 0 18px;
+}
+
+.about-page .about-story-copy .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--orange, #ff5a1f);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-top: 8px;
+  transition: gap 0.2s ease, color 0.2s ease;
+}
+
+.about-page .about-story-copy .text-link:hover {
+  gap: 12px;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Section Headings (Dark Theme)
+   ========================================================================== */
+
+.about-page .section-heading {
+  margin-bottom: 42px;
+}
+
+.about-page .section-heading .eyebrow {
+  margin-bottom: 14px;
+  color: var(--orange, #ff5a1f);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.about-page .section-heading h2 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: clamp(38px, 4.6vw, 56px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.about-page .section-heading h2 em {
+  font-style: normal;
+  color: var(--orange, #ff5a1f);
+}
+
+.about-page .section-intro {
+  color: rgba(245, 242, 235, 0.7);
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 380px;
+}
+
+/* ==========================================================================
+   Facilities & Values Sections (Dark Cards)
+   ========================================================================== */
+
+.about-page .about-facilities-section {
+  background: #0c0c0b;
+  padding: 95px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.about-page .about-values-section {
+  background: #11110f;
+  padding: 95px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.about-page .about-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.about-page .about-card {
+  position: relative;
+  background: #161614;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 6px;
+  padding: 34px 28px 30px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+}
+
+.about-page .about-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 90, 31, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 90, 31, 0.1);
+}
+
+.about-page .card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.about-page .card-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  background: rgba(255, 90, 31, 0.1);
+  border: 1px solid rgba(255, 90, 31, 0.28);
+  display: grid;
+  place-items: center;
+  color: var(--orange, #ff5a1f);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.about-page .about-card:hover .card-icon-wrap {
+  background: rgba(255, 90, 31, 0.18);
+  border-color: rgba(255, 90, 31, 0.5);
+}
+
+.about-page .card-number {
+  font-family: var(--display, 'Oswald', sans-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.14);
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.about-page .about-card:hover .card-number {
+  color: rgba(255, 90, 31, 0.35);
+}
+
+.about-page .about-card h3 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+.about-page .about-card p {
+  font-size: 13px;
+  line-height: 1.75;
+  color: rgba(245, 242, 235, 0.74);
+  margin: 0;
+  flex: 1;
+}
+
+.about-page .card-accent-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--orange, #ff5a1f) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.about-page .about-card:hover .card-accent-line {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Closing CTA Section
+   ========================================================================== */
+
+.about-page .about-closing-cta {
+  background: linear-gradient(135deg, #161613 0%, #1c1510 50%, #24130a 100%);
+  color: #ffffff;
+  padding: 75px 0;
+  border-top: 1px solid rgba(255, 90, 31, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.about-page .about-closing-cta::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 90, 31, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.about-page .about-closing-cta .eyebrow {
+  color: var(--orange, #ff5a1f);
+  margin-bottom: 12px;
+  letter-spacing: 0.2em;
+}
+
+.about-page .about-closing-cta h2 {
+  font-family: var(--display, 'Oswald', Impact, sans-serif);
+  font-size: clamp(38px, 4.5vw, 56px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.about-page .about-closing-cta h2 em {
+  font-style: normal;
+  color: var(--orange, #ff5a1f);
+}
+
+.about-page .about-closing-cta .button-primary {
+  background: var(--orange, #ff5a1f);
+  border-color: var(--orange, #ff5a1f);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(255, 90, 31, 0.35);
+}
+
+.about-page .about-closing-cta .button-primary:hover {
+  background: #e94c15;
+  border-color: #e94c15;
+  box-shadow: 0 12px 30px rgba(255, 90, 31, 0.5);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 990px) {
+  .about-page .page-hero {
+    min-height: 460px;
+    padding: 110px 0 60px;
+  }
+
+  .about-page .about-story-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .about-page .about-story-photo {
+    height: 380px;
+  }
+
+  .about-page .about-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .about-page .about-facilities-section,
+  .about-page .about-values-section,
+  .about-page .about-story-section {
+    padding: 75px 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .about-page .page-hero {
+    min-height: auto;
+    padding: 95px 0 50px;
+  }
+
+  .about-page .about-hero-content h1 {
+    font-size: clamp(38px, 11vw, 54px);
+    line-height: 0.94;
+  }
+
+  .about-page .about-hero-lead {
+    font-size: 14px;
+    line-height: 1.65;
+    margin: 16px 0 24px;
+  }
+
+  .about-page .about-hero-actions {
+    width: 100%;
+    max-width: 340px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .about-page .about-hero-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .about-page .about-story-photo {
+    height: 300px;
+  }
+
+  .about-page .about-story-badge {
+    bottom: 14px;
+    left: 14px;
+    right: 14px;
+    padding: 10px 14px;
+  }
+
+  .about-page .about-story-badge span {
+    font-size: 13px;
+  }
+
+  .about-page .about-story-copy h2 {
+    font-size: 36px;
+  }
+
+  .about-page .about-story-copy .body-copy {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .about-page .about-cards-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .about-page .about-card {
+    padding: 26px 22px;
+  }
+
+  .about-page .about-facilities-section,
+  .about-page .about-values-section,
+  .about-page .about-story-section {
+    padding: 55px 0;
+  }
+
+  .about-page .about-closing-cta {
+    padding: 55px 0;
+  }
+
+  .about-page .about-closing-cta .closing-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+  }
+}

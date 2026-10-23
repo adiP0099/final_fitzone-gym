@@ -50,10 +50,33 @@ function formatDate(value, options = { dateStyle: 'medium' }) {
   return date && !Number.isNaN(date.valueOf()) ? new Intl.DateTimeFormat(undefined, options).format(date) : '—'
 }
 
+function timestampMillis(value) {
+  const date = value?.toDate ? value.toDate() : value instanceof Date ? value : null
+  return date && !Number.isNaN(date.valueOf()) ? date.valueOf() : 0
+}
+
+function formatMembershipDate(value) {
+  const date = value?.toDate ? value.toDate() : value instanceof Date ? value : null
+  return date && !Number.isNaN(date.valueOf())
+    ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(date)
+    : 'Not recorded'
+}
+
+function displayStatus(value) {
+  return typeof value === 'string' && value.trim()
+    ? value.replaceAll('_', ' ')
+    : 'Not recorded'
+}
+
 function membershipStatus(record) {
   const endAt = record.endAt?.toDate ? record.endAt.toDate() : record.endAt
   if (record.status === 'active' && endAt instanceof Date && endAt <= new Date()) return 'expired'
   return record.status || '—'
+}
+
+function membershipDisplayStatus(record) {
+  const status = membershipStatus(record)
+  return status === 'expired' || record.status ? status : 'Not recorded'
 }
 
 function formatPrice(amountMinor, currency) {
@@ -79,10 +102,20 @@ export default function MemberPages({ page }) {
 function OverviewPage() {
   const { user } = useAuth()
   const membershipState = useServiceState(memberships.watchMyMemberships)
+  const requestState = useServiceState(membershipRequests.watchMyRequests)
   const profileState = useServiceState(userProfiles.watchMyProfile)
   const trainerState = useServiceState(trainers.watchActiveTrainers)
   const firstName = user?.displayName?.trim().split(/\s+/)[0] || 'there'
-  const activeMembership = membershipState.data?.find((item) => membershipStatus(item) === 'active')
+  const orderedMemberships = [...(membershipState.data || [])]
+    .sort((left, right) => timestampMillis(right.createdAt) - timestampMillis(left.createdAt))
+  const activeMemberships = orderedMemberships.filter((item) => membershipStatus(item) === 'active')
+  const displayedMemberships = activeMemberships.length ? activeMemberships : orderedMemberships.slice(0, 1)
+  const requestsById = new Map((requestState.data || []).map((request) => [request.id, request]))
+  const membershipRequest = (record) => {
+    const request = record.requestId ? requestsById.get(record.requestId) : null
+    return request?.membershipId === record.id && request.memberUid === user?.uid ? request : null
+  }
+  const membershipLabel = displayedMemberships.length > 1 ? 'Active memberships' : 'Membership'
   const selectedTrainerId = profileState.data?.selectedTrainerId
   const selectedTrainer = trainerState.data?.find((trainer) => trainer.id === selectedTrainerId)
   const selectedTrainerName = selectedTrainer?.displayName || 'Trainer'
@@ -91,7 +124,7 @@ function OverviewPage() {
   return <>
     <Heading title={`Welcome, ${firstName}.`} text="Your membership activity and records, when available." />
     <div className="stat-grid">
-      <Stat icon={CreditCard} label="MEMBERSHIP" value={membershipState.loading ? '…' : membershipState.error ? 'Unavailable' : activeMembership ? 'Active' : '—'} detail={membershipState.error ? 'Could not load membership' : activeMembership ? `Plan · ${activeMembership.planName || activeMembership.planId || 'Not specified'}` : 'No active membership record'} />
+      <Stat icon={CreditCard} label="MEMBERSHIP" value={membershipState.loading ? '…' : membershipState.error ? 'Unavailable' : activeMemberships.length ? (activeMemberships.length > 1 ? `${activeMemberships.length} Active` : 'Active') : displayedMemberships.length ? membershipDisplayStatus(displayedMemberships[0]) : '—'} detail={membershipState.error ? 'Could not load membership' : displayedMemberships.length ? `${membershipLabel} · ${displayedMemberships.map((item) => item.planName || item.planId || 'Not specified').join(', ')}` : 'No membership records'} />
     </div>
     <div className="dash-columns">
       <section className="trainer-card">
@@ -117,12 +150,27 @@ function OverviewPage() {
       <section className="panel membership-panel">
         <p className="eyebrow">MEMBERSHIP RECORD</p>
         <DataMessage state={membershipState} empty="No membership records are associated with your account.">
-          {activeMembership ? <>
-            <h3>{activeMembership.planName || activeMembership.planId || 'Membership'}</h3>
-            <span className="plan-status">{membershipStatus(activeMembership).toUpperCase()}</span>
-            <p className="sample-caption">Payment status: {activeMembership.paymentStatus || 'Not recorded'}. Approval does not process payment.</p>
+          {displayedMemberships.length ? <>
+            {displayedMemberships.map((record) => {
+              const request = membershipRequest(record)
+              const snapshot = request?.planSnapshot
+              const status = membershipDisplayStatus(record)
+              const requestDetailsLoading = requestState.loading
+              return <div className="membership-record" key={record.id} role="group" aria-label={`${record.planName || snapshot?.name || 'Membership'} details`}>
+                <h3>{record.planName || snapshot?.name || 'Plan name not recorded'}</h3>
+                <span className="plan-status">{status.toUpperCase()}</span>
+                <p><strong>Duration:</strong> {requestDetailsLoading ? 'Loading…' : Number.isInteger(snapshot?.durationDays) && snapshot.durationDays > 0 ? `${snapshot.durationDays} days` : 'Not recorded'}</p>
+                <p><strong>Plan price at request:</strong> {requestDetailsLoading ? 'Loading…' : Number.isSafeInteger(snapshot?.priceMinor) && typeof snapshot?.currency === 'string' ? formatPrice(snapshot.priceMinor, snapshot.currency) : 'Not recorded'}</p>
+                <p><strong>Start date:</strong> {formatMembershipDate(record.startAt)}</p>
+                <p><strong>End / expiry date:</strong> {formatMembershipDate(record.endAt)}</p>
+                <p><strong>Approval status:</strong> {requestDetailsLoading ? 'Loading…' : displayStatus(request?.status)}</p>
+                <p className="sample-caption">Payment status: {displayStatus(record.paymentStatus)}. Approval does not process payment.</p>
+              </div>
+            })}
+            {requestState.loading && <p className="member-data-message" role="status" aria-live="polite">Loading linked plan details…</p>}
+            {requestState.error && <p className="member-data-message error" role="alert">Linked plan details could not be loaded. {requestState.error.message || ''}</p>}
             <Link className="text-link" to="/member/membership">View membership details <ArrowUpRight size={16} /></Link>
-          </> : <p className="member-data-message">No active membership record is available.</p>}
+          </> : <p className="member-data-message">No membership records are associated with your account.</p>}
         </DataMessage>
       </section>
     </div>

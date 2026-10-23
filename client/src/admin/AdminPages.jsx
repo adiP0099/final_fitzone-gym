@@ -86,7 +86,7 @@ function AdminOverview() {
     { key: 'members', label: 'TOTAL MEMBERS', icon: Users, description: 'Member profiles in Firestore' },
     { key: 'memberships', label: 'ACTIVE MEMBERSHIPS', icon: CreditCard, description: 'Unexpired active memberships' },
     { key: 'trainers', label: 'TRAINERS', icon: Dumbbell, description: 'Trainer profiles in Firestore' },
-    { key: 'bookings', label: 'BOOKINGS', icon: CalendarDays, description: 'Booking records in Firestore' },
+    // { key: 'bookings', label: 'BOOKINGS', icon: CalendarDays, description: 'Booking records in Firestore' },
   ]
 
   return <>

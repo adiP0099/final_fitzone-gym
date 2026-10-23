@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ArrowDown, ArrowUpRight, Dumbbell, HeartPulse, MoveUpRight, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Dumbbell, HeartPulse, MoveUpRight, Sparkles, Star, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import '../styles/HomePage.css'
 import SectionHeading from '../components/SectionHeading.jsx'
 import PlanCard from '../components/PlanCard.jsx'
 import TrainerCard from '../components/TrainerCard.jsx'
@@ -13,11 +14,87 @@ export default function HomePage() {
   useEffect(() => trainers.watchActiveTrainers(setTrainerState), [])
   useEffect(() => memberships.watchActivePlans(setPlanState), [])
 
-  return <main>
-    <section className="hero" id="home"><div className="hero-grid" /><div className="container hero-inner">
-      <div className="hero-copy"><p className="eyebrow"><span className="eyebrow-dot" /> YOUR NEXT CHAPTER STARTS HERE</p><h1>STRONGER<br />IS A <em>FEELING.</em></h1><p className="hero-lead">A neighborhood gym for real people, good coaching, and progress that fits your life.</p><div className="hero-actions"><Link className="button button-primary button-large" to="/plans">Explore memberships <MoveUpRight size={18} /></Link><Link className="button button-outline button-large" to="/contact">Visit information <ArrowUpRight size={18} /></Link></div><div className="hero-footnote"><span><ShieldCheck size={17} /> COACH-LED. COMMUNITY-DRIVEN.</span><a href="#story">SCROLL TO EXPLORE <ArrowDown size={14} /></a></div></div>
-      <div className="hero-visual" aria-hidden="true"><div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" /><div className="hero-sun" /><div className="hero-shape"><Dumbbell size={108} strokeWidth={1.1} /></div><span className="hero-sticker">FIND YOUR<br /><b>STRONG</b></span><span className="hero-side-label">FITZONE / EST. FOR YOUR NEXT REP</span><div className="hero-card"><span>01 / SHOW UP</span><strong>Make today<br />count.</strong><i /></div></div>
-    </div><div className="hero-bottom-line" /></section>
+  return <main className="home-page">
+    <section className="hero" id="home">
+      <img
+        className="hero-photo"
+        src="/assets/hero-athlete.jpg"
+        alt="FitZone athlete training"
+        aria-hidden="true"
+        fetchPriority="high"
+      />
+      <div className="hero-overlay" />
+      <div className="container hero-container">
+        <div className="hero-main">
+          <div className="hero-copy">
+            <p className="hero-eyebrow">
+              <span className="hero-eyebrow-line" />
+              YOUR FITNESS JOURNEY STARTS HERE
+            </p>
+            <h1>
+              STRONGER<br />
+              IS A <em>FEELING.</em>
+            </h1>
+            <p className="hero-lead">
+              A modern gym for real people, expert coaching, and a stronger, healthier you.
+            </p>
+            <div className="hero-actions">
+              <Link className="button button-primary button-large hero-btn-primary" to="/plans">
+                Start Your Journey <ArrowRight size={18} />
+              </Link>
+              <Link className="button button-outline button-large hero-btn-secondary" to="/contact">
+                Explore Plans <ArrowRight size={18} />
+              </Link>
+            </div>
+          </div>
+
+          <div className="hero-visual" aria-hidden="true">
+            <div className="hero-script-tag">
+              <span>Train</span>
+              <span>Stronger</span>
+              <span>Live Better</span>
+            </div>
+            <div className="hero-badge-right">
+              <span>DISCIPLINE</span>
+              <span>TODAY</span>
+              <span className="badge-highlight">STRONGER</span>
+              <span>TOMORROW</span>
+              <div className="badge-underline" />
+            </div>
+          </div>
+        </div>
+
+        <div className="hero-highlights">
+          <div className="hero-highlight-item">
+            <div className="highlight-icon-wrap">
+              <Dumbbell className="highlight-icon" size={24} strokeWidth={2.2} />
+            </div>
+            <span className="highlight-text">MODERN<br />EQUIPMENT</span>
+          </div>
+          <div className="highlight-divider" />
+          <div className="hero-highlight-item">
+            <div className="highlight-icon-wrap">
+              <Users className="highlight-icon" size={24} strokeWidth={2.2} />
+            </div>
+            <span className="highlight-text">EXPERT<br />TRAINERS</span>
+          </div>
+          <div className="highlight-divider" />
+          <div className="hero-highlight-item">
+            <div className="highlight-icon-wrap">
+              <HeartPulse className="highlight-icon" size={24} strokeWidth={2.2} />
+            </div>
+            <span className="highlight-text">A HEALTHIER<br />LIFESTYLE</span>
+          </div>
+          <div className="highlight-divider" />
+          <div className="hero-highlight-item">
+            <div className="highlight-icon-wrap">
+              <Star className="highlight-icon" size={24} strokeWidth={2.2} />
+            </div>
+            <span className="highlight-text">SUPPORTIVE<br />COMMUNITY</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section className="intro-section section-pad" id="story"><div className="container intro-grid"><div><p className="eyebrow">MORE THAN A GYM</p><h2>Progress looks<br />good <em>on you.</em></h2></div><div><p className="intro-text">FitZone is a space to move at your pace, get expert support, and feel proud of every step. No pressure to be perfect. Just people showing up for themselves.</p><Link className="text-link" to="/about">Get to know us <ArrowUpRight size={17} /></Link></div><div className="intro-stat"><strong>MOVE</strong><span>AT YOUR PACE<br />GET STRONGER</span></div></div></section>
 

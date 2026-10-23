@@ -1,16 +1,17 @@
 import { Menu, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import Brand from './Brand.jsx'
 
-const links = [['About', '/about'], ['Programs', '/plans'], ['Trainers', '/trainers'], ['Contact', '/contact']]
+const links = [['About', '/about'], ['Plans', '/plans'], ['Trainers', '/trainers'], ['Contact', '/contact']]
 const LOGO_GESTURE_CLICKS = 5
 const LOGO_GESTURE_WINDOW_MS = 3000
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const { loading: authLoading, user } = useAuth()
+  const isHome = useLocation().pathname === '/'
   const navigate = useNavigate()
   const logoClickCount = useRef(0)
   const logoClickTimer = useRef(null)
@@ -46,7 +47,7 @@ export default function Navbar() {
   }
 
   return (
-    <header className="site-header">
+    <header className={`site-header${isHome ? ' home-header' : ''}`}>
       <div className="container nav-inner">
         <Brand inverse onClick={handleLogoClick} />
         <button className="icon-button mobile-menu" type="button" aria-label={open ? 'Close navigation' : 'Open navigation'} aria-expanded={open} onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>

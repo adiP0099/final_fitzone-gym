@@ -40,7 +40,7 @@ export default function DashboardLayout({ kind }) {
     }
   }
 
-  return <div className="dashboard-shell">
+  return <div className={`dashboard-shell${admin ? ' dashboard-shell-admin' : ' dashboard-shell-member'}`}>
     {open && <button className="sidebar-scrim" type="button" aria-label="Close navigation" onClick={() => setOpen(false)} />}
     <aside className={`dashboard-sidebar${open ? ' sidebar-open' : ''}`}>
       <div className="sidebar-brand"><Brand inverse /><span className="dashboard-role">{admin ? 'ADMIN WORKSPACE' : 'MEMBER SPACE'}</span></div>
